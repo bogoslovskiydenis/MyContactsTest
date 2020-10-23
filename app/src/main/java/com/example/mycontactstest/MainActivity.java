@@ -1,25 +1,26 @@
 package com.example.mycontactstest;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Insert;
-import androidx.room.Room;
-
-import android.view.View;
-
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import java.nio.channels.AsynchronousChannelGroup;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        contactAdapter = new ContactAdapter();
+        contactAdapter = new ContactAdapter(contactArrayList , MainActivity.this);
         recyclerView.setAdapter(contactAdapter);
 
         myContactsDatabase = Room.databaseBuilder(getApplicationContext(),
@@ -51,22 +52,98 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                addAndEditContact(false, null, -1);
+
             }
         });
     }
+
+    public void addAndEditContact(boolean isUpdate, Contact contact, int position) {
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        View view = layoutInflater.inflate(R.layout.add_edit_contact, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setView(view);
+
+        //создаем поля
+        TextView contactTitleTextView = view.findViewById(R.id.contactTitleTextView);
+        EditText firstNameEditTextView = view.findViewById(R.id.firstNameEditTextView);
+        EditText lastNameEditTextView = view.findViewById(R.id.lastNameEditTextView);
+        EditText emailEditTextView = view.findViewById(R.id.emailEditTextView);
+        EditText phoneNumberEditTextView = view.findViewById(R.id.phoneNumberEditTextView);
+        //устанавливаем диалоги
+        contactTitleTextView.setText(!isUpdate ? "Add Contact" : "Edit contact");
+
+        if (isUpdate && contact != null) {
+            firstNameEditTextView.setText(contact.getFirstName());
+            lastNameEditTextView.setText(contact.getLastName());
+            emailEditTextView.setText(contact.getEmail());
+            phoneNumberEditTextView.setText(contact.getPhoneNumber());
+        }
+
+        builder.setCancelable(false)
+                .setPositiveButton(isUpdate ? "Update" : "Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (TextUtils.isEmpty(firstNameEditTextView.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Enter first name", Toast.LENGTH_LONG).show();
+                } else if (TextUtils.isEmpty(lastNameEditTextView.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Enter last name", Toast.LENGTH_LONG).show();
+                } else if (TextUtils.isEmpty(emailEditTextView.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Enter email ", Toast.LENGTH_LONG).show();
+                } else if (TextUtils.isEmpty(phoneNumberEditTextView.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Enter phone number", Toast.LENGTH_LONG).show();
+                } else {
+                    if (isUpdate && contact != null) {
+                        updateContact(
+                                firstNameEditTextView.getText().toString(),
+                                lastNameEditTextView.getText().toString(),
+                                emailEditTextView.getText().toString(),
+                                phoneNumberEditTextView.getText().toString()
+                                , position);
+                    } else {
+                        addContact(
+                                firstNameEditTextView.getText().toString(),
+                                lastNameEditTextView.getText().toString(),
+                                emailEditTextView.getText().toString(),
+                                phoneNumberEditTextView.getText().toString()
+                        );
+                    }
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     //loadContacts
     private void loadContacts() {
         new GetAllContactsAsyncTask().execute();
     }
+
     //DeleteContacts
-    private void DeleteContacts(Contact contact){
+    private void DeleteContacts(Contact contact) {
         new DeleteContactAsyncTask().execute(contact);
     }
+
     //AddContact
-    private void AddContacts(Contact contact){
+    private void addContact(String firstName, String lastName, String email, String phoneNumber) {
+        Contact contact = new Contact(0, firstName, lastName, email, phoneNumber);
+
         new AddContactAsyncTask().execute(contact);
+    }
+
+    private void updateContact(String firstName, String lastName, String email, String phoneNumber, int position) {
+        Contact contact = contactArrayList.get(position);
+        contact.setFirstName(firstName);
+        contact.setLastName(lastName);
+        contact.setEmail(email);
+        contact.setPhoneNumber(phoneNumber);
+
+        new UpdateContactAsyncTask().execute(contact);
+
+        contactArrayList.set(position, contact);
     }
 
     @Override
@@ -91,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class GetAllContactsAsyncTask extends AsyncTask<Void, Void ,Void>{
+    private class GetAllContactsAsyncTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -109,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class DeleteContactAsyncTask extends AsyncTask<Contact, Void, Void>{
+    private class DeleteContactAsyncTask extends AsyncTask<Contact, Void, Void> {
 
         @Override
         protected Void doInBackground(Contact... contacts) {
@@ -123,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
             loadContacts();
         }
     }
-    private class AddContactAsyncTask extends AsyncTask<Contact, Void, Void>{
+
+    private class AddContactAsyncTask extends AsyncTask<Contact, Void, Void> {
 
         @Override
         protected Void doInBackground(Contact... contacts) {
@@ -137,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
             loadContacts();
         }
     }
-    private class UpdateContactAsyncTask extends AsyncTask<Contact, Void, Void>{
+
+    private class UpdateContactAsyncTask extends AsyncTask<Contact, Void, Void> {
 
         @Override
         protected Void doInBackground(Contact... contacts) {

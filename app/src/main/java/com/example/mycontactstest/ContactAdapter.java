@@ -1,5 +1,6 @@
 package com.example.mycontactstest;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder>{
+public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
-    private ArrayList<Contact> contactArrayList;
+    private ArrayList<Contact> contactArrayList = new ArrayList<>();
+    private MainActivity mainActivity;
+    public ContactAdapter(ArrayList<Contact> contactArrayList, MainActivity mainActivity){
+        this.contactArrayList = contactArrayList;
+        this.mainActivity = mainActivity;
+    }
+
 
     public void setContactArrayList(ArrayList<Contact> contactArrayList) {
         this.contactArrayList = contactArrayList;
@@ -23,19 +30,18 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     @Override
     public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item,parent, false);
-
-        return new ContactViewHolder(itemView);
+        return new ContactViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item,
+                parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         Contact contact = contactArrayList.get(position);
 
-        holder.firstName.setText(contact.getFirstName());
-        holder.lastName.setText(contact.getLastName());
-        holder.email.setText(contact.getEmail());
-        holder.phoneNumber.setText(contact.getPhoneNumber());
+        holder.firstNameEditTextView.setText(contact.getFirstName());
+        holder.lastNameTextView.setText(contact.getLastName());
+        holder.emailTextView.setText(contact.getEmail());
+        holder.phoneNumberTextView.setText(contact.getPhoneNumber());
 
     }
 
@@ -44,21 +50,21 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         return contactArrayList.size();
     }
 
-    class ContactViewHolder extends RecyclerView.ViewHolder{
+    class ContactViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView firstName;
-        private TextView lastName;
-        private  TextView email;
-        private TextView phoneNumber;
+        private TextView firstNameEditTextView;
+        private TextView lastNameTextView;
+        private TextView emailTextView;
+        private TextView phoneNumberTextView;
 
         public ContactViewHolder(@NonNull View itemView) {
 
             super(itemView);
 
-            firstName = itemView.findViewById(R.id.firstNameTextView);
-            firstName = itemView.findViewById(R.id.lastNameTextView);
-            firstName = itemView.findViewById(R.id.emailNameTextView);
-            firstName = itemView.findViewById(R.id.phoneNumberTextView);
+            firstNameEditTextView = itemView.findViewById(R.id.firstNameEditTextView);
+            lastNameTextView = itemView.findViewById(R.id.lastNameTextView);
+            emailTextView = itemView.findViewById(R.id.emailNameTextView);
+            phoneNumberTextView = itemView.findViewById(R.id.phoneNumberTextView);
 
 
         }

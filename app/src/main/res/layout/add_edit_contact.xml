@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/contactTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/contact"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/firstNameEditTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="top"
+        android:hint="@string/first_name"
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/lastNameEditTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="top"
+        android:hint="@string/last_name"
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/emailEditTextView"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="top"
+        android:hint="@string/email"
+        android:textSize="24sp"
+        android:layout_width="match_parent" />
+    <EditText
+        android:id="@+id/phoneNumberEditTextView"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="top"
+        android:hint="@string/phone_number"
+        android:textSize="24sp"
+        android:layout_width="match_parent" />
+
+</LinearLayout>

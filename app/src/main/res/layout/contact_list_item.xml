@@ -36,7 +36,7 @@
         android:textSize="24sp"
         />
     <TextView
-        android:id="@+id/firstNameTextView"
+        android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="FirstName"
